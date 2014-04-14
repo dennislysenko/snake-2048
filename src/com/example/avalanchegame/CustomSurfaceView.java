@@ -93,31 +93,16 @@ public class CustomSurfaceView
         private int              minWidth;
 
         private int              maxWidth;
-        private Lava             lava;
-        private Box              ground;
-        private Box              testBlock;
-        private Box              testBlock2               =
-                                                              new Box(
-                                                                  mCanvasWidth / 2,
-                                                                  mCanvasHeight / 2,
-                                                                  300,
-                                                                  -50f);
 
-        private long             lastTime                 =
-                                                              System
-                                                                  .currentTimeMillis();
+        private long             lastTime                 = System.currentTimeMillis();
 
         // the amount the accelerometer value should be multiplied by before
         // being passed to the player object
         private int              accelerometerCoefficient = -100;
 
-        private long             seed                     =
-                                                              (long)(Long.MAX_VALUE * Math
-                                                                  .random());
+        private long             seed                     = (long)(Long.MAX_VALUE * Math.random());
 
         private Random           seededRandom;
-
-        private float            boxFallSpeed             = -200f;
 
         private boolean          triedToJump              = false;
 
@@ -156,134 +141,10 @@ public class CustomSurfaceView
         {
             return (int)(seededRandom.nextDouble() * (max - min) + min);
         }
-
-
         public void generateBoxes(float startingHeight, float additionalHeight)
         {
-            for (float spawnHeight = startingHeight; spawnHeight <= startingHeight
-                + additionalHeight; spawnHeight +=
-                seededRandom.nextFloat() * mCanvasHeight / 3 + mCanvasHeight
-                    / 5)
-            {
-                int amountPerHeight = seededRandom.nextInt(2) + 1;
-                for (int i = 0; i < amountPerHeight; i++)
-                {
-                    int width = randInt(minWidth, maxWidth) * 2;
-                    int x = randInt(width / 2, mCanvasWidth - width / 2);
-                    Box box = new Box(x, spawnHeight, width, boxFallSpeed);
-                    Iterator<Box> boxesIt = boxes.iterator();
-                    while (boxesIt.hasNext())
-                    {
-                        Box block = boxesIt.next();
-                        box.fixIntersection(block, box.intersects(block));
-                        block.fixIntersection(box, block.intersects(box));
-                        if (!(block instanceof Ground)
-                            && (block.left < 0 || block.right > mCanvasWidth))
-                            boxesIt.remove();
-                    }
-                    // if (box.top > maxBlockHeight)
-                    // maxBlockHeight = box.top;
-                    if (box.left >= 0 && box.right <= mCanvasWidth)
-                        boxes.add(box);
-                }
-            }
-// for (int i = 0; i < columns.length; i++)
-// {
-// int width = randInt(minWidth, maxWidth) * 2;
-// int x = randInt(0, mCanvasWidth);
-// boolean collisions = true;
-// while (collisions)
-// {
-// collisions = false;
-// for (Box rect : columns)
-// {
-// if (rect == null)
-// continue;
-// if (x + width / 2 > rect.left
-// && x - width / 2 < rect.right)
-// {
-// x = randInt(0, mCanvasWidth);
-// collisions = true;
-// break;
-// }
-// }
-// }
-//
-// Box box =
-// new Box(
-// x,
-// mCanvasWidth * 2.0f,
-// width);
-// boxes.add(box);
-// columns[i] = box;
-// }
+            // TODO implement
         }
-
-
-        /**
-         * @todo make it not spawn blocks off the screen (when generating random
-         *       x, cap the minimum and maximum x coordinate)
-         * @todo figure out why it spawns them inside each other
-         */
-        public void generateNextBox()
-        {
-            int width = randInt(minWidth, maxWidth) * 2;
-
-            // Pick a column to add a rectangle to
-            // Not purely random, somewhat weighted by how low the highest box
-            // in each column is (prefer adding boxes to shorter columns)
-            float[] possibilities = new float[columns.length];
-            final int PAD = 5;
-
-            float highestColumnBoxHeight = 0f;
-            for (int i = 0; i < columns.length; i++)
-            {
-                Box prect = columns[i];
-
-                for (Box poss : columns)
-                {
-                    if (poss.getY() > highestColumnBoxHeight)
-                    {
-                        highestColumnBoxHeight = poss.getY();
-                    }
-                }
-                float p =
-                    prect.getY()
-                        + randInt(
-                            0,
-                            (int)(highestColumnBoxHeight - prect.getY() + PAD));
-                possibilities[i] = p;
-            }
-
-            int columnIndex = 0;
-            float smallestPossibility = Float.MAX_VALUE;
-            for (int i = 0; i < possibilities.length; i++)
-            {
-                if (possibilities[i] < smallestPossibility)
-                {
-                    columnIndex = i;
-                    smallestPossibility = possibilities[i];
-                }
-            }
-
-            Box baseBox = columns[columnIndex];
-
-            // Create a new box on top of baseBox
-            System.out.println("" + baseBox.top + " "
-                + (baseBox.getY() + baseBox.getSize() / 2));
-            float y = baseBox.top + width / 2 + 50;
-            float x =
-                randInt(
-                    (int)(baseBox.left - width / 2 + 1),
-                    (int)(baseBox.right + width / 2 - 1));
-            Box newBox = new Box(x, y, width, boxFallSpeed);
-
-            // Add this box to the list of boxes & replace baseBox as the column
-// head
-            boxes.add(newBox);
-            columns[columnIndex] = newBox;
-        }
-
 
         /**
          * Pauses the physics update & animation.
@@ -392,13 +253,6 @@ public class CustomSurfaceView
                     g.fromJson(prefs.getString("player", "null"), Player.class);
                 if (player == null)
                     System.out.println("PLAYER NULL");
-// Type listType = new TypeToken<List<Box>>() {
-// }.getType();
-// boxes = g.fromJson(prefs.getString("boxes", "null"), listType);
-                lava = g.fromJson(prefs.getString("lava", "null"), Lava.class);
-                if (lava == null)
-                    System.out.println("LAVA NULL");
-                // System.out.println("LAVA TOP: " + lava.top);
                 triedToJump = prefs.getBoolean("triedToJump", false);
                 blocksAbovePlayer = prefs.getInt("blocksAbovePlayer", 0);
                 firstTime = prefs.getBoolean("firstTime", false);
@@ -426,7 +280,6 @@ public class CustomSurfaceView
 // Type listType = new TypeToken<List<Box>>() {
 // }.getType();
 // e.putString("boxes", g.toJson(boxes, listType));
-                e.putString("lava", g.toJson(lava, Lava.class));
                 e.putBoolean("triedToJump", triedToJump);
                 e.putInt("blocksAbovePlayer", blocksAbovePlayer);
                 e.putBoolean("firstTime", firstTime);
@@ -487,9 +340,6 @@ public class CustomSurfaceView
                         mCanvasWidth / 2 + 50,
                         800), mCanvasWidth, mCanvasHeight);
 
-                testBlock =
-                    new Box(mCanvasWidth / 2, mCanvasHeight / 2 - 500, 200, 0);
-
                 minWidth = 2 * (mCanvasWidth / 30); // Even
 
                 maxWidth = 2 * (mCanvasWidth / 15); // Even
@@ -497,17 +347,8 @@ public class CustomSurfaceView
                 mBlackPaint.setColor(Color.BLACK);
                 mBlackPaint.setStyle(Style.FILL);
 
-                lava =
-                    new Lava(0, -.5f * mCanvasHeight + 1, mCanvasWidth, -.5f
-                        * mCanvasHeight);
-
                 spawnIncrements = mCanvasHeight * 6;
                 maxBlockHeight = mCanvasHeight;
-
-                ground = new Ground(mCanvasWidth / 2, -5000, 10000);
-                boxes.add(ground);
-                // boxes.add(testBlock);
-                // boxes.add(testBlock2);
             }
         }
 
@@ -534,26 +375,15 @@ public class CustomSurfaceView
             e.commit();
 
             boxes.clear();
-            ground = new Ground(mCanvasWidth / 2, -5000, 10000);
-            boxes.add(ground);
             firstTime = true;
             player.restart();
             triedToJump = false;
-            lava =
-                new Lava(0, -.5f * mCanvasHeight + 1, mCanvasWidth, -.5f
-                    * mCanvasHeight);
-            topHit = false;
-            bottomHit = false;
             blocksAbovePlayer = 0;
             maxBlockHeight = mCanvasHeight;
             // use new seed
             seededRandom = new Random((long)(Long.MAX_VALUE * Math.random()));
             lastTime = System.currentTimeMillis();
         }
-
-        private boolean topHit    = false;
-        private boolean bottomHit = false;
-
 
         private void updateLogic()
         {
@@ -562,86 +392,48 @@ public class CustomSurfaceView
                 player.getRect()
                     .offsetTo(
                         mCanvasWidth / 2,
-                        ground.top + player.getRect().top
-                            - player.getRect().bottom);
+                        mCanvasHeight / 2);
                 // generateBoxes(mCanvasHeight, mCanvasHeight * 40);
             }
 
-            // Log.d("balls", blocksAbovePlayer + "");
-            if (blocksAbovePlayer < MIN_BLOCKS_ABOVE)
-            {
-                generateBoxes(maxBlockHeight + maxWidth * 2, spawnIncrements);
-                Log.d("spawn", "SENDING MOAR BLOCKS");
-            }
-            maxBlockHeight = 0;
-            blocksAbovePlayer = 0;
             firstTime = false;
             player.adjustPosition((int)(System.currentTimeMillis() - lastTime));
-            player.setNotGrounded();
             for (Box block : boxes)
             {
-                block
-                    .adjustPosition((int)(System.currentTimeMillis() - lastTime));
-                for (Box possibleCollisionBlock : boxes)
-                {
-                    if (!possibleCollisionBlock.isMoving())
-                    {
-                        int collisionIndicator =
-                            block.intersects(possibleCollisionBlock);
-                        if (collisionIndicator > -1)
-                        {
-// Log.d("fdsa", block.toString() + ", "
-// + possibleCollisionBlock.toString());
-                        }
-                        block.fixIntersection(
-                            possibleCollisionBlock,
-                            collisionIndicator);
-
-                    }
-                }
-                if (block.top > maxBlockHeight)
-                    maxBlockHeight = block.top;
+//                for (Box possibleCollisionBlock : boxes)
+//                {
+//                    // Check if the player's head has collided with the block, if so, do combination logic
+//                    // And generate another block
+//
+//                    // With a low probability, remove a random block from the board and place another one
+//                }
+//                if (block.top > maxBlockHeight)
+//                    maxBlockHeight = block.top;
 
                 // adjust block
-                int collisionIndicator = player.intersects(block);
-                if (collisionIndicator > -1)
-                {
-                    player.fixIntersection(block, collisionIndicator);
-                    // if (block.width() > 9000)
-                    // Log.d("ground", "colliding with ground");
-                    // fix grounding within player
-                }
+//                int collisionIndicator = player.intersects(block);
+//                if (collisionIndicator > -1)
+//                {
+//                    player.fixIntersection(block, collisionIndicator);
+//                    // if (block.width() > 9000)
+//                    // Log.d("ground", "colliding with ground");
+//                    // fix grounding within player
+//                }
 
-                if (collisionIndicator == 0)
-                    if (!player.switchedSides())
-                        topHit = true;
-                if (collisionIndicator == 2)
-                {
-                    if (!player.switchedSides())
-                        bottomHit = true;
-                    player.setYVelocity(block.getVy());
-                }
-                if (player.getY() < block.top)
-                    blocksAbovePlayer++;
+//                if (collisionIndicator == 0)
+//                    if (!player.switchedSides())
+//                        topHit = true;
+//                if (collisionIndicator == 2)
+//                {
+//                    if (!player.switchedSides())
+//                        bottomHit = true;
+//                    player.setYVelocity(block.getVy());
+//                }
+//                if (player.getY() < block.top)
+//                    blocksAbovePlayer++;
             }
-            if (topHit && bottomHit)
+            if (player.isDead())
             {
-                Log.d("died", player.switchedSides() + "anus");
-                restart();
-                return;
-            }
-            else
-                topHit = bottomHit = false;
-            if (triedToJump)
-                player.tryToJump();
-            triedToJump = false;
-
-            lava.top += 1.0;
-
-            int collisionIndicator = player.intersects(lava);
-            if (collisionIndicator > -1)
-            {
-                Log.d("RESTART", "RESTARTING!");
                 restart();
                 return;
             }
@@ -651,7 +443,7 @@ public class CustomSurfaceView
 
 
         /**
-         * Draws the minions, towers, and background to the provided Canvas.
+         * Draws the player snake and number blocks to the provided canvas.
          */
         private void doDraw(Canvas canvas)
         {
@@ -668,8 +460,6 @@ public class CustomSurfaceView
             {
                 box.draw(canvas, player.getRect().bottom);
             }
-
-            lava.draw(canvas, player.getRect().bottom);
             // canvas.drawRect(mBlockRect, mBlockPaint);
         }
 
@@ -695,9 +485,7 @@ public class CustomSurfaceView
             // {
             switch (e.getAction())
             {
-                case MotionEvent.ACTION_DOWN:
-                    triedToJump = !player.tryToJump();
-                    break;
+                // TODO implement
             }
             return true;
             // }

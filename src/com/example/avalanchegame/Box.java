@@ -15,7 +15,7 @@ public class Box
     private float y;
     private float size;
 
-    private float vy;
+    private int value;
 
     private Paint fillPaint;
     private Paint outlinePaint;
@@ -30,19 +30,14 @@ public class Box
      *            the center y of the box
      * @param size
      *            the length and the width of the box
-     * @param initVY
-     *            a negative float that dictates how fast the box falls (-200f
-     *            is a decent speed)
      */
-    public Box(float x, float y, float size, float initVY)
+    public Box(float x, float y, float size)
     {
         super(x - size / 2, y + size / 2, x + size / 2, y - size / 2);
 
         this.x = x;
         this.y = y;
         this.size = size;
-
-        setVy(initVY);
 
         fillPaint = new Paint();
         fillPaint.setColor(Color.BLUE);
@@ -62,31 +57,7 @@ public class Box
 
     public void draw(Canvas c, float playerY)
     {
-//        float ground = c.getHeight() * 0.8f;
-//        float cutoff = c.getHeight() * 0.5f;
-//
-//        RectF localBox;
-//
-//        /*
-//         * The function to convert from global to local coordinates not
-//         * accounting for camera shift is l(y) = groundY - y. The playerY passed
-//         * in is in local coordinates, so it should first be converted to global
-//         * coordinates.
-//         */
-//        if (playerY < cutoff)
-//        {
-//            localBox = new RectF(left, ground - top, right, ground - bottom);
-//        }
-//        else
-//        {
-//            localBox =
-//                new RectF(
-//                    left,
-//                    ground - (top - (playerY - cutoff)),
-//                    right,
-//                    ground - (bottom - (playerY - cutoff)));
-//        }
-
+        // TODO draw number as well
         float ground = c.getHeight() * 0.8f;
         float cutoff = c.getHeight() * 0.5f;
         RectF localBox = new RectF(left, ground - top, right, ground - bottom);
@@ -94,19 +65,6 @@ public class Box
         c.drawRect(localBox, fillPaint);
         c.drawRect(localBox, outlinePaint);
     }
-
-
-    public float getVy()
-    {
-        return vy;
-    }
-
-
-    public void setVy(float vy)
-    {
-        this.vy = vy;
-    }
-
 
     // ----------------------------------------------------------
     /**
@@ -173,20 +131,6 @@ public class Box
         updateBounds();
     }
 
-
-    public void adjustPosition(int deltaT)
-    {
-        this.offset(0, vy * deltaT / 1000);
-        y += vy * deltaT / 1000;
-    }
-
-
-    public boolean isMoving()
-    {
-        return Math.abs(vy) > 0.01f;
-    }
-
-
     public int intersects(RectF collided)
     {
         int minimumIntersectIndex = -1;
@@ -241,7 +185,6 @@ public class Box
             float amount = other.top - this.bottom + 0.5f;
             offset(0, amount);
 
-            vy = 0;
             y += amount;
             // Log.d("CENTER", playerRect + "");
         }

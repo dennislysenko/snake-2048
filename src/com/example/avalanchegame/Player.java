@@ -26,9 +26,6 @@ public class Player implements Parcelable
     private float       py;
     private float       px;
     private boolean     sideSwitched               = false;
-    private boolean     grounded                   = false;
-    private boolean     canJumpFromLeft            = false;
-    private boolean     canJumpFromRight           = false;
     private float startingSideJumpVelocity   = 750;
     private float       additionalSideJumpVelocity = 0f;
     private float jumpVelocity               = 1500f;
@@ -67,9 +64,6 @@ public class Player implements Parcelable
         py = parcel.readFloat();
         px = parcel.readFloat();
         sideSwitched = parcel.readByte() != 0;
-        grounded = parcel.readByte() != 0;
-        canJumpFromLeft = parcel.readByte() != 0;
-        canJumpFromRight = parcel.readByte() != 0;
         startingSideJumpVelocity = parcel.readFloat();
         additionalSideJumpVelocity = parcel.readFloat();
         jumpVelocity = parcel.readFloat();
@@ -87,9 +81,6 @@ public class Player implements Parcelable
         vy = 0;
         vx = 0;
         sideSwitched = false;
-        grounded = false;
-        canJumpFromLeft = false;
-        canJumpFromRight = false;
         additionalSideJumpVelocity = 0f;
         midJump = false;
     }
@@ -185,8 +176,8 @@ public class Player implements Parcelable
             // {
             // minimumIntersectIndex = 4;
             // }
-            if (sideSwitched && !(collided instanceof Ground))
-                minimumIntersectIndex = 4;
+            if (sideSwitched)
+            minimumIntersectIndex = 4;
         }
         else if (playerRect.top < collided.top
             && playerRect.top > collided.bottom
@@ -215,7 +206,7 @@ public class Player implements Parcelable
 // {
 // minimumIntersectIndex = 4;
 // }
-            if (sideSwitched && !(collided instanceof Ground))
+            if (sideSwitched)
                 minimumIntersectIndex = 4;
         }
         return minimumIntersectIndex;
@@ -223,9 +214,9 @@ public class Player implements Parcelable
 
 
     /**
-     * This method should be called when the player collides with a box. It
-     * fixes the position of the player based on what side intersected, and then
-     * allows it to jump a direction accordingly.
+     * This method should be called when the player collides with a box. It algorithmically determines whether the
+     * collided box should be pushed onto the player's stack of boxes or if it should be combined with his head,
+     * repeatedly combining blocks further down the chain if need be.
      *
      * @param other
      *            the RectF the player collided with
@@ -233,7 +224,7 @@ public class Player implements Parcelable
      *            an integer indicating what side of the player collided. See
      *            documentation for -intersects(RectF)
      */
-    public void fixIntersection(RectF other, int whichSide)
+    public void fixIntersection(Box other, int whichSide)
     {
         if (whichSide == 0) // top
         {
@@ -253,7 +244,6 @@ public class Player implements Parcelable
                 vx = 20.0f;
                 vy = -canvasHeight * .125f;
                 px = playerRect.centerX();
-                canJumpFromRight = true;
             }
             // Log.d("CENTER", playerRect + "");
         }
@@ -264,11 +254,6 @@ public class Player implements Parcelable
             vy = 0;
             py = playerRect.centerY();
             midJump = false;
-            grounded = true;
-            canJumpFromLeft = false;
-            canJumpFromRight = false;
-            // Log.d("CENTER", playerRect+"");
-            // Log.d("asdfasdf", "ACTUALLY COLLIDING WITH GROUND");
         }
         else if (whichSide == 3) // left
         {
@@ -280,27 +265,22 @@ public class Player implements Parcelable
                 vx = -20.0f;
                 vy = -canvasHeight * .125f;
                 px = playerRect.centerX();
-                canJumpFromLeft = true;
             }
-            // Log.d("CENTER", playerRect + "");
         }
         else if (whichSide == 4) // switched side and collided
         {
             if (px > canvasWidth)
             {
-                Log.d("useless tag", "PUTTING AT LEFT");
                 playerRect.left = -width / 2 + 1.0f;
                 playerRect.right = playerRect.left + width;
 
             }
             else if (px < 0)
             {
-                Log.d("useless tag", "PUTTING AT RIGHT");
                 playerRect.right = canvasWidth + width / 2 - 1.0f;
                 playerRect.left = playerRect.right - width;
             }
             sideSwitched = false;
-            Log.d("gay", sideSwitched + "");
         }
     }
 
@@ -340,14 +320,14 @@ public class Player implements Parcelable
         playerRect.offset(pxtemp - px, pytemp - py);
         if (px < 0)
         {
-            Log.d("OFF SCREEN", "YAYA");
+            Log.d("OFF SCREEN", "YAYA TOURE");
             playerRect.right = canvasWidth + width / 2;
             playerRect.left = playerRect.right - width;
             sideSwitched = true;
         }
         else if (px > canvasWidth)
         {
-            Log.d("OFF SCREEN", "YAYA");
+            Log.d("OFF SCREEN", "YAYA TOURE");
             playerRect.left = -width / 2;
             playerRect.right = playerRect.left + width;
             sideSwitched = true;
@@ -360,72 +340,10 @@ public class Player implements Parcelable
     }
 
 
-    public void setNotGrounded()
-    {
-        grounded = false;
-        canJumpFromLeft = false;
-        canJumpFromRight = false;
-    }
-
-
     public void setXVelocity(float dvx)
     {
         vx = dvx;
     }
-
-
-    public boolean tryToJump()
-    {
-        if (grounded)
-        {
-            jump();
-            return true;
-        }
-        else if (canJumpFromLeft)
-        {
-            jumpFromLeft();
-            return true;
-        }
-        else if (canJumpFromRight)
-        {
-            jumpFromRight();
-            return true;
-        }
-        return false;
-    }
-
-
-    private void jumpFromLeft()
-    {
-        vy += jumpVelocity;
-        midJump = true;
-        additionalSideJumpVelocity = startingSideJumpVelocity;
-        setNotGrounded();
-    }
-
-
-    private void jumpFromRight()
-    {
-        vy += jumpVelocity;
-        midJump = true;
-        additionalSideJumpVelocity = -startingSideJumpVelocity;
-        setNotGrounded();
-    }
-
-
-    private void jump()
-    {
-        vy += jumpVelocity;
-        midJump = true;
-        setNotGrounded();
-    }
-
-
-    public boolean isGrounded()
-    {
-        return grounded;
-    }
-
 
     public float getY()
     {
@@ -475,13 +393,15 @@ public class Player implements Parcelable
         parcel.writeFloat(py);
         parcel.writeFloat(px);
         parcel.writeByte((byte)(sideSwitched?1:0));
-        parcel.writeByte((byte)(grounded?1:0));
-        parcel.writeByte((byte)(canJumpFromLeft?1:0));
-        parcel.writeByte((byte)(canJumpFromRight?1:0));
         parcel.writeFloat(startingSideJumpVelocity);
         parcel.writeFloat(additionalSideJumpVelocity);
         parcel.writeFloat(jumpVelocity);
         parcel.writeByte((byte)(midJump?1:0));
 
+    }
+
+    public boolean isDead() {
+        // TODO implement
+        return false;
     }
 }
