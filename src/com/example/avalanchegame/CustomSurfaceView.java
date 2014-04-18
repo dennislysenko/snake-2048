@@ -18,10 +18,7 @@ import android.view.SurfaceView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 // -------------------------------------------------------------------------
 /**
@@ -251,6 +248,11 @@ public class CustomSurfaceView
                 Editor e = prefs.edit();
                 player =
                     g.fromJson(prefs.getString("player", "null"), Player.class);
+                ArrayList<Box> boxes = g.fromJson(prefs.getString("playerBoxes", "null"), ArrayList.class);
+                if (boxes == null) {
+                    System.out.println("BOXES NULL");
+                }
+                player.setBoxes(boxes);
                 if (player == null)
                     System.out.println("PLAYER NULL");
                 triedToJump = prefs.getBoolean("triedToJump", false);
@@ -277,6 +279,7 @@ public class CustomSurfaceView
                 Editor e = prefs.edit();
                 // System.out.println(g.toJson(player, Player.class));
                 e.putString("player", g.toJson(player, Player.class));
+                e.putString("playerBoxes", g.toJson(player.getBoxes(), ArrayList.class));
 // Type listType = new TypeToken<List<Box>>() {
 // }.getType();
 // e.putString("boxes", g.toJson(boxes, listType));
@@ -335,10 +338,10 @@ public class CustomSurfaceView
 
                 player =
                     new Player(new RectF(
-                        mCanvasWidth / 2 - 50,
-                        900,
-                        mCanvasWidth / 2 + 50,
-                        800), mCanvasWidth, mCanvasHeight);
+                        mCanvasWidth / 2 - 16,
+                        mCanvasHeight / 2 - 16,
+                        mCanvasWidth / 2,
+                        mCanvasHeight), mCanvasWidth, mCanvasHeight);
 
                 minWidth = 2 * (mCanvasWidth / 30); // Even
 
@@ -398,39 +401,22 @@ public class CustomSurfaceView
 
             firstTime = false;
             player.adjustPosition((int)(System.currentTimeMillis() - lastTime));
-            for (Box block : boxes)
+            ListIterator<Box> boxListIterator = boxes.listIterator();
+            while(boxListIterator.hasNext())
             {
-//                for (Box possibleCollisionBlock : boxes)
-//                {
-//                    // Check if the player's head has collided with the block, if so, do combination logic
-//                    // And generate another block
-//
-//                    // With a low probability, remove a random block from the board and place another one
-//                }
-//                if (block.top > maxBlockHeight)
-//                    maxBlockHeight = block.top;
+                Box possibleCollisionBlock = boxListIterator.next();
 
-                // adjust block
-//                int collisionIndicator = player.intersects(block);
-//                if (collisionIndicator > -1)
-//                {
-//                    player.fixIntersection(block, collisionIndicator);
-//                    // if (block.width() > 9000)
-//                    // Log.d("ground", "colliding with ground");
-//                    // fix grounding within player
-//                }
+                // Check if the player's head has collided with the block, if so, do combination logic
+                // And generate another block
+                int collisionIndicator = player.intersects(possibleCollisionBlock);
 
-//                if (collisionIndicator == 0)
-//                    if (!player.switchedSides())
-//                        topHit = true;
-//                if (collisionIndicator == 2)
-//                {
-//                    if (!player.switchedSides())
-//                        bottomHit = true;
-//                    player.setYVelocity(block.getVy());
-//                }
-//                if (player.getY() < block.top)
-//                    blocksAbovePlayer++;
+                if (collisionIndicator > -1) {
+                    player.fixIntersection(possibleCollisionBlock, collisionIndicator);
+                    boxListIterator.remove();
+                }
+
+                // With a low probability, remove a random block from the board and place another one
+                // TODO implement
             }
             if (player.isDead())
             {
@@ -487,15 +473,9 @@ public class CustomSurfaceView
             {
                 // TODO implement
             }
+            player.toggleMovingDirection();
             return true;
             // }
-        }
-
-
-        public void onSensorChanged(SensorEvent event)
-        {
-            if (event != null && event.values != null && player != null)
-                player.setXVelocity(accelerometerCoefficient * event.values[0]);
         }
     }
 

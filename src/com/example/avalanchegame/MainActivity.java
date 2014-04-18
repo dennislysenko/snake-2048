@@ -17,7 +17,6 @@ import com.example.avalanchegame.CustomSurfaceView.GameThread;
 
 public class MainActivity
     extends Activity
-    implements SensorEventListener
 {
     public final static String PREF_FILE = "EruptionGameState";
 
@@ -99,12 +98,12 @@ public class MainActivity
     protected void onPause()
     {
         super.onPause();
-        sensorManager.unregisterListener(this);
         if (gameThread != null)
             gameThread.saveState();
         Intent i = new Intent(this, PauseScreen.class);
         startActivityForResult(i, 2);
-        finish(); // this will stop the thread (i think)
+        // unregister sensor listeners
+        finish();
     }
 
 
@@ -112,10 +111,7 @@ public class MainActivity
     protected void onResume()
     {
         super.onResume();
-        sensorManager.registerListener(
-            this,
-            accelerometer,
-            SensorManager.SENSOR_DELAY_NORMAL);
+        // register sensor listeners
     }
 
 
@@ -125,21 +121,6 @@ public class MainActivity
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
-    }
-
-
-    public void onAccuracyChanged(Sensor sensor, int accuracy)
-    {
-        // TODO Auto-generated method stub
-        return;
-    }
-
-
-    public void onSensorChanged(SensorEvent event)
-    {
-        // TODO Auto-generated method stub
-        if (gameThread != null)
-            gameThread.onSensorChanged(event);
     }
 
 }
