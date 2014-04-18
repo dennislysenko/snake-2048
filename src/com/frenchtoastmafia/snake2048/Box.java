@@ -1,11 +1,9 @@
-package com.example.avalanchegame;
+package com.frenchtoastmafia.snake2048;
 
-import android.util.Log;
 import android.graphics.Color;
 import android.graphics.Paint.Style;
 import android.graphics.Paint;
 import android.graphics.Canvas;
-import android.graphics.Rect;
 import android.graphics.RectF;
 
 public class Box

@@ -1,4 +1,4 @@
-package com.example.avalanchegame;
+package com.frenchtoastmafia.snake2048;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -9,15 +9,13 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.RectF;
-import android.hardware.SensorEvent;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Type;
+
 import java.util.*;
 
 // -------------------------------------------------------------------------

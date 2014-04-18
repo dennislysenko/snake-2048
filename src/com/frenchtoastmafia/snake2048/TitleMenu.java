@@ -1,4 +1,4 @@
-package com.example.avalanchegame;
+package com.frenchtoastmafia.snake2048;
 
 import android.app.Activity;
 import android.content.Intent;
