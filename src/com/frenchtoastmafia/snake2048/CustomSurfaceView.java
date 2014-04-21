@@ -162,6 +162,9 @@ public class CustomSurfaceView
             int sleepTime = 0; // ms to sleep (<0 if we're behind)
             int framesSkipped; // number of frames being skipped
 
+            // spawn some boxes initially
+            spawnNewBox();
+
             // while its running, which is determined by the mode constants
             // defined at the beginning
             while (mRun)
@@ -400,6 +403,7 @@ public class CustomSurfaceView
             firstTime = false;
             player.adjustPosition((int)(System.currentTimeMillis() - lastTime));
             ListIterator<Box> boxListIterator = boxes.listIterator();
+            boolean boxMustBeSpawned = false;
             while(boxListIterator.hasNext())
             {
                 Box possibleCollisionBlock = boxListIterator.next();
@@ -411,11 +415,18 @@ public class CustomSurfaceView
                 if (collisionIndicator > -1) {
                     player.fixIntersection(possibleCollisionBlock, collisionIndicator);
                     boxListIterator.remove();
+
+                    boxMustBeSpawned = true;
                 }
 
                 // With a low probability, remove a random block from the board and place another one
                 // TODO implement
             }
+
+            if (boxMustBeSpawned) {
+                spawnNewBox();
+            }
+
             if (player.isDead())
             {
                 restart();
@@ -423,6 +434,13 @@ public class CustomSurfaceView
             }
 
             lastTime = System.currentTimeMillis();
+        }
+
+        private void spawnNewBox() {
+            double x = Math.random() * mCanvasWidth;
+            double y = Math.random() * mCanvasHeight;
+            float size = Player.VELOCITY;
+            boxes.add(new Box((float)x, (float)y, size));
         }
 
 
@@ -469,9 +487,25 @@ public class CustomSurfaceView
             // {
             switch (e.getAction())
             {
-                // TODO implement
+                case MotionEvent.ACTION_DOWN:
+                    downX = e.getX();
+                    downY = e.getY();
+                    break;
+                case MotionEvent.ACTION_UP:
+                    float x = e.getX();
+                    float y = e.getY();
+
+                    float dx = x - downX;
+                    float dy = y - downY;
+                    double angle = Math.atan2(dy, -dx);
+                    // If the angle is 45-135, move up; 135-225, move right; 225-315, move down; 315-45, move left.
+                    angle -= Math.PI/4; // simplify things. now, 0-90=move up, 90-180=move right, 180-270=move down, 270-360=move left.
+                    angle = (angle + 2 * Math.PI) % (2 * Math.PI); // make it positive: the angle was in [-pi, pi] before
+                    int direction = (int)(angle / (Math.PI/2)); // finally, get the direction as an integer compatible with the Player class
+                    player.setMovingDirection(direction);
+                    break;
             }
-            player.toggleMovingDirection();
+            // player.toggleMovingDirection();
             return true;
             // }
         }

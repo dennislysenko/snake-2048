@@ -56,12 +56,12 @@ public class Box
     public void draw(Canvas c, float playerY)
     {
         // TODO draw number as well
-        float ground = c.getHeight() * 0.8f;
-        float cutoff = c.getHeight() * 0.5f;
-        RectF localBox = new RectF(left, ground - top, right, ground - bottom);
-        localBox.offset(0, playerY - (ground - cutoff));
-        c.drawRect(localBox, fillPaint);
-        c.drawRect(localBox, outlinePaint);
+//        float ground = c.getHeight() * 0.8f;
+//        float cutoff = c.getHeight() * 0.5f;
+//        RectF localBox = new RectF(left, ground - top, right, ground - bottom);
+//        localBox.offset(0, playerY - (ground - cutoff));
+        c.drawRect(this, fillPaint);
+        c.drawRect(this, outlinePaint);
     }
 
     // ----------------------------------------------------------

@@ -168,6 +168,7 @@ public class Player
     public void fixIntersection(Box other, int collisionIndicator)
     {
         boxes.add(0, other);
+        //adjustPosition(0);
     }
 
 
@@ -181,6 +182,9 @@ public class Player
      */
     public void adjustPosition(int deltaT)
     {
+        if (boxes == null || !(boxes.get(0) instanceof Box)) {
+            restart();
+        }
         Box head = boxes.get(0);
 
         int vx = 0;
@@ -202,7 +206,7 @@ public class Player
         }
 
         // From the tail, move every box to the one above it, and finish by moving the in the movingDirection
-        for (int i = boxes.size() - 1; i > 1; i--) {
+        for (int i = boxes.size() - 1; i >= 1; i--) {
             Box currentBox = boxes.get(i);
             Box previousBox = boxes.get(i-1);
 
@@ -245,5 +249,8 @@ public class Player
 
     public void toggleMovingDirection() {
         movingDirection = ++movingDirection % 4;
+    }
+    public void setMovingDirection(int movingDirection) {
+        this.movingDirection = movingDirection;
     }
 }
