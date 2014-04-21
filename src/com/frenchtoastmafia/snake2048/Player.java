@@ -52,6 +52,7 @@ public class Player
         py = startRect.centerY();
         px = startRect.centerX();
         sideSwitched = false;
+        movingDirection = -1;
     }
 
 
@@ -168,7 +169,9 @@ public class Player
     public void fixIntersection(Box other, int collisionIndicator)
     {
         boxes.add(0, other);
-        //adjustPosition(0);
+        adjustPosition(0); // To prevent dying whenever you acquire a new box
+        // TODO fix the position of the box so that it is inline with the player's last box
+        // This will also remove the bug that causes the player to die when he hits two overlapping blocks
     }
 
 
@@ -239,8 +242,20 @@ public class Player
     }
 
     public boolean isDead() {
-        // TODO implement
-        return false;
+        if (boxes == null || !(boxes.get(0) instanceof Box)) {
+            restart();
+        }
+
+        // First check if you "ran into yourself"
+        Box head = boxes.get(0);
+        for (Box box : boxes) {
+            if (!box.equals(head) && intersects(box) > -1) { // remember that intersects() only checks collisions with the head
+                return true;
+            }
+        }
+
+        // Then check if you're off the screen
+        return px < 0 || py < 0 || px > canvasWidth || py > canvasHeight;
     }
 
     public void setBoxes(List<Box> boxes) {
@@ -253,4 +268,5 @@ public class Player
     public void setMovingDirection(int movingDirection) {
         this.movingDirection = movingDirection;
     }
+    public int getMovingDirection() { return movingDirection; }
 }

@@ -379,6 +379,7 @@ public class CustomSurfaceView
             e.commit();
 
             boxes.clear();
+            spawnNewBox();
             firstTime = true;
             player.restart();
             triedToJump = false;
@@ -424,7 +425,9 @@ public class CustomSurfaceView
             }
 
             if (boxMustBeSpawned) {
-                spawnNewBox();
+                for (int i = 0; i < 10; i++) {
+                    spawnNewBox();
+                }
             }
 
             if (player.isDead())
@@ -437,6 +440,7 @@ public class CustomSurfaceView
         }
 
         private void spawnNewBox() {
+            // TODO make this not spawn boxes near the edge--or should it?
             double x = Math.random() * mCanvasWidth;
             double y = Math.random() * mCanvasHeight;
             float size = Player.VELOCITY;
@@ -474,8 +478,7 @@ public class CustomSurfaceView
 
         // ----------------------------------------------------------
         /**
-         * This is where we will check where the user touches and respond
-         * accordingly
+         * This is where we will check for swipes that determine where the snake should move and respond accordingly.
          *
          * @param e
          *            the motion event
@@ -502,10 +505,14 @@ public class CustomSurfaceView
                     angle -= Math.PI/4; // simplify things. now, 0-90=move up, 90-180=move right, 180-270=move down, 270-360=move left.
                     angle = (angle + 2 * Math.PI) % (2 * Math.PI); // make it positive: the angle was in [-pi, pi] before
                     int direction = (int)(angle / (Math.PI/2)); // finally, get the direction as an integer compatible with the Player class
-                    player.setMovingDirection(direction);
+
+                    if (player.getMovingDirection() != -1 || (direction - player.getMovingDirection()) % 2 != 0) {
+                        // don't let the player move opposite to his previous direction
+                        // but if his previous direction was -1 (not moving) anything goes
+                        player.setMovingDirection(direction);
+                    }
                     break;
             }
-            // player.toggleMovingDirection();
             return true;
             // }
         }
