@@ -506,7 +506,7 @@ public class CustomSurfaceView
                     angle = (angle + 2 * Math.PI) % (2 * Math.PI); // make it positive: the angle was in [-pi, pi] before
                     int direction = (int)(angle / (Math.PI/2)); // finally, get the direction as an integer compatible with the Player class
 
-                    if (player.getMovingDirection() != -1 || (direction - player.getMovingDirection()) % 2 != 0) {
+                    if (player.getMovingDirection() == -1 || (direction - player.getMovingDirection()) % 2 != 0) {
                         // don't let the player move opposite to his previous direction
                         // but if his previous direction was -1 (not moving) anything goes
                         player.setMovingDirection(direction);
