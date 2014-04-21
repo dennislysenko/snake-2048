@@ -9,6 +9,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 public class Player
 {
@@ -249,6 +250,8 @@ public class Player
 
         py = head.centerY();
         px = head.centerX();
+
+        mergeNumbersTogether();
     }
 
     public float getY()
@@ -269,6 +272,27 @@ public class Player
 
     public List<Box> getBoxes() {
         return boxes;
+    }
+
+    public void mergeNumbersTogether() {
+        // TODO move all of the following boxes up in the snake when you merge two together
+        ListIterator<Box> it = boxes.listIterator();
+        while (it.hasNext()) {
+            Box current = it.next();
+            if (!it.hasNext()) {
+                break;
+            }
+
+            Box next = it.next();
+
+            if (current.getValue() == next.getValue()) {
+                current.setValue(current.getValue() * 2);
+                it.remove();
+            } else {
+                // If you didn't merge two tiles, move the cursor back so you can re-process the "next" tile
+                it.previous();
+            }
+        }
     }
 
     public boolean isDead() {
