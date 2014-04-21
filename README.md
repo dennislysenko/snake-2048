@@ -1,2 +1,2 @@
-avalanche
+Snake 2048
 =========
