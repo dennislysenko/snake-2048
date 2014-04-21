@@ -1,10 +1,7 @@
 package com.frenchtoastmafia.snake2048;
 
-import android.graphics.Color;
+import android.graphics.*;
 import android.graphics.Paint.Style;
-import android.graphics.Paint;
-import android.graphics.Canvas;
-import android.graphics.RectF;
 
 public class Box
     extends RectF
@@ -16,7 +13,7 @@ public class Box
     private int value;
 
     private Paint fillPaint;
-    private Paint outlinePaint;
+    private Paint textPaint;
 
 
     /**
@@ -29,21 +26,23 @@ public class Box
      * @param size
      *            the length and the width of the box
      */
-    public Box(float x, float y, float size)
+    public Box(float x, float y, float size, int value)
     {
         super(x - size / 2, y + size / 2, x + size / 2, y - size / 2);
 
         this.x = x;
         this.y = y;
         this.size = size;
+        this.value = value;
 
         fillPaint = new Paint();
         fillPaint.setColor(Color.BLUE);
         fillPaint.setStyle(Style.FILL);
-        outlinePaint = new Paint();
-        outlinePaint.setColor(Color.BLACK);
-        outlinePaint.setStyle(Style.STROKE);
-
+        textPaint = new Paint();
+        textPaint.setColor(Color.WHITE);
+        textPaint.setStyle(Style.FILL);
+        textPaint.setTextSize(60);
+        textPaint.setFakeBoldText(true);
     }
 
 
@@ -53,15 +52,30 @@ public class Box
     }
 
 
-    public void draw(Canvas c, float playerY)
+    public void draw(Canvas c, Paint fillPaint, Paint textPaint)
     {
-        // TODO draw number as well
-//        float ground = c.getHeight() * 0.8f;
-//        float cutoff = c.getHeight() * 0.5f;
-//        RectF localBox = new RectF(left, ground - top, right, ground - bottom);
-//        localBox.offset(0, playerY - (ground - cutoff));
-        c.drawRect(this, fillPaint);
-        c.drawRect(this, outlinePaint);
+       c.drawRect(this, fillPaint);
+       if (value > 0) {
+           String sValue = ""+value;
+
+           // TODO set the font size of the textPaint to fit sValue
+
+           Rect bounds = new Rect();
+           textPaint.getTextBounds(sValue, 0, sValue.length(), bounds);
+
+           float paddingX = 0.5f * (width() - bounds.width());
+           float paddingY = 0.5f * (height() - bounds.height());
+
+
+           c.save();
+           c.rotate(90, centerX(), centerY());
+           c.drawText(sValue, left + paddingX, top, textPaint);
+           c.restore();
+       }
+    }
+
+    public void draw(Canvas c) {
+        this.draw(c, this.fillPaint, this.textPaint);
     }
 
     // ----------------------------------------------------------

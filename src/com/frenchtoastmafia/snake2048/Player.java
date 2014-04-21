@@ -15,6 +15,7 @@ public class Player
     private List<Box> boxes;
     private RectF       startRect;
     private Paint       playerPaint;
+    private Paint textPaint;
     private int         canvasWidth;
     private int         canvasHeight;
     private float       width;
@@ -24,13 +25,13 @@ public class Player
     private float       px;
     private boolean     sideSwitched               = false;
 
-    public static final int VELOCITY = 16;
+    public static final int VELOCITY = 48;
 
     public Player(RectF r, int cW, int cH)
     {
         Log.d("PLAYER_CREATION", "player created");
         startRect = r;
-        Box playerRect = new Box(r.centerX(), r.centerY(), r.width());
+        Box playerRect = new Box(r.centerX(), r.centerY(), r.width(), 2);
         width = r.right - r.left;
         height = r.top - r.bottom;
         canvasWidth = cW;
@@ -40,6 +41,12 @@ public class Player
         playerPaint = new Paint();
         playerPaint.setColor(Color.BLACK);
         playerPaint.setStyle(Style.FILL);
+
+        textPaint = new Paint();
+        textPaint.setColor(Color.WHITE);
+        textPaint.setStyle(Style.FILL);
+        textPaint.setTextSize(60);
+        textPaint.setFakeBoldText(true);
         boxes = new ArrayList<Box>();
         boxes.add(playerRect);
 
@@ -48,7 +55,7 @@ public class Player
     public void restart()
     {
         boxes = new ArrayList<Box>();
-        boxes.add(new Box(startRect.centerX(), startRect.centerY(), startRect.width()));
+        boxes.add(new Box(startRect.centerX(), startRect.centerY(), startRect.width(), 2));
         py = startRect.centerY();
         px = startRect.centerX();
         sideSwitched = false;
@@ -58,9 +65,8 @@ public class Player
 
     public void draw(Canvas c)
     {
-        // TODO implement
         for (Box box : boxes) {
-            c.drawRect(box, playerPaint);
+            box.draw(c, playerPaint, textPaint);
         }
     }
 
@@ -168,10 +174,34 @@ public class Player
      */
     public void fixIntersection(Box other, int collisionIndicator)
     {
+        Box head = boxes.get(0);
+
         boxes.add(0, other);
-        adjustPosition(0); // To prevent dying whenever you acquire a new box
-        // TODO fix the position of the box so that it is inline with the player's last box
-        // This will also remove the bug that causes the player to die when he hits two overlapping blocks
+
+        if (movingDirection == 0) { // Up
+            other.left = head.left;
+            other.right = head.right;
+            other.bottom = head.top;
+            other.top = other.bottom + VELOCITY;
+        } else if (movingDirection == 1) {
+            // Right
+            other.top = head.top;
+            other.bottom = head.bottom;
+            other.left = head.right;
+            other.right = other.left + VELOCITY;
+        } else if (movingDirection == 2) {
+            // Down
+            other.left = head.left;
+            other.right = head.right;
+            other.top = head.bottom;
+            other.bottom = other.top - VELOCITY;
+        } else if (movingDirection == 3) {
+            // Left
+            other.top = head.top;
+            other.bottom = head.bottom;
+            other.right = head.left;
+            other.left = other.right - VELOCITY;
+        }
     }
 
 

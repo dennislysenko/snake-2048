@@ -44,7 +44,7 @@ public class CustomSurfaceView
         /*
          * These are used for frame timing
          */
-        private final static int MAX_FPS                  = 50;
+        private final static int MAX_FPS                  = 20;
         private final static int MAX_FRAME_SKIPS          = 5;
         private final static int FRAME_PERIOD             = 1000 / MAX_FPS;
 
@@ -339,8 +339,8 @@ public class CustomSurfaceView
 
                 player =
                     new Player(new RectF(
-                        mCanvasWidth / 2 - 16,
-                        mCanvasHeight / 2 - 16,
+                        mCanvasWidth / 2 - 48,
+                        mCanvasHeight / 2 - 48,
                         mCanvasWidth / 2,
                         mCanvasHeight), mCanvasWidth, mCanvasHeight);
 
@@ -425,7 +425,7 @@ public class CustomSurfaceView
             }
 
             if (boxMustBeSpawned) {
-                for (int i = 0; i < 10; i++) {
+                for (int i = 0; i < seededRandom.nextInt(2) + 1; i++) {
                     spawnNewBox();
                 }
             }
@@ -444,7 +444,18 @@ public class CustomSurfaceView
             double x = Math.random() * mCanvasWidth;
             double y = Math.random() * mCanvasHeight;
             float size = Player.VELOCITY;
-            boxes.add(new Box((float)x, (float)y, size));
+
+            int value = -1;
+            int valueRand = seededRandom.nextInt(16);
+            if (valueRand <= 10) {
+                value = 2;
+            } else if (valueRand <= 13) {
+                value = 4;
+            } else {
+                value = 8;
+            }
+
+            boxes.add(new Box((float)x, (float)y, size, value));
         }
 
 
@@ -458,15 +469,12 @@ public class CustomSurfaceView
             // so this is like clearing the screen.
             // canvas.drawBitmap(mBackgroundImage, 0, 0, null);
             canvas.drawColor(Color.WHITE);
-            // canvas.drawRect(mGrassRect, mGrassPaint);
-            // canvas.drawRect(testBlock, mBlackPaint);
             player.draw(canvas);
 
             for (Box box : boxes)
             {
-                box.draw(canvas, player.getRect().bottom);
+                box.draw(canvas);
             }
-            // canvas.drawRect(mBlockRect, mBlockPaint);
         }
 
         /**
