@@ -66,11 +66,7 @@ public class Box
            float paddingX = 0.5f * (width() - bounds.width());
            float paddingY = 0.5f * (height() - bounds.height());
 
-
-           c.save();
-           c.rotate(90, centerX(), centerY());
            c.drawText(sValue, left + paddingX, top, textPaint);
-           c.restore();
        }
     }
 

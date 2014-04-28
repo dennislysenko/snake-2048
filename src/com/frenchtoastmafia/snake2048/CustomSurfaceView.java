@@ -474,10 +474,7 @@ public class CustomSurfaceView
                 box.draw(canvas);
             }
 
-            canvas.save();
-            canvas.rotate(90, 50, 50);
             canvas.drawText(String.format("Score: %d", player.score()), 50, 50, mBlackPaint);
-            canvas.restore();
         }
 
         /**

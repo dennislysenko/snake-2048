@@ -15,7 +15,7 @@
         android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
         <activity
             android:name="com.frenchtoastmafia.snake2048.MainActivity"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="landscape" >
         </activity>
         <activity android:name="com.frenchtoastmafia.snake2048.TitleMenu" >
         </activity>
