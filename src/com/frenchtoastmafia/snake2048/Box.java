@@ -40,12 +40,15 @@ public class Box
         textPaint.setStyle(Style.FILL);
         textPaint.setTextSize(60);
         textPaint.setFakeBoldText(true);
+
+        adjustToGrid();
     }
 
 
     public void updateBounds()
     {
         set(x - SIZE / 2, y + SIZE / 2, x + SIZE / 2, y - SIZE / 2);
+        adjustToGrid();
     }
 
 
@@ -168,20 +171,34 @@ public class Box
         }
         else if (whichSide == 2) // bottom
         {
-            // Log.d("Fock", "Top Top Fockothy");
             float amount = other.top - this.bottom + 0.5f;
             offset(0, amount);
 
             y += amount;
-            // Log.d("CENTER", playerRect + "");
         }
         else if(whichSide == 3)
         {
             float amount = other.right - this.left + 30.5f;
-            //Log.d("asdf", +other.right+", "+this.left);
             offset(amount, 0);
-            //Log.d("asdf", +other.right+", "+this.left);
             x += amount;
+        }
+
+        adjustToGrid();
+    }
+
+    private void adjustToGrid() {
+        float leftAdjust = this.left % 48;
+        float topAdjust = this.top % 48;
+
+        // TODO figure out why this gridding code was breaking everything
+        if (false) {
+            this.left -= leftAdjust;
+            this.right -= leftAdjust;
+            this.x -= leftAdjust;
+
+            this.top -= topAdjust;
+            this.bottom -= topAdjust;
+            this.y -= topAdjust;
         }
     }
 

@@ -27,6 +27,9 @@ public class Player
     private float       px;
     private boolean     sideSwitched               = false;
 
+    private int maxBoxValue = 0;
+    private int score = 0;
+
     public static final int VELOCITY = 48;
 
     public Player(RectF r, int cW, int cH)
@@ -62,6 +65,8 @@ public class Player
         px = startRect.centerX();
         sideSwitched = false;
         movingDirection = -1;
+        score = 0;
+        maxBoxValue = 0;
     }
 
 
@@ -173,6 +178,10 @@ public class Player
 
         boxes.add(0, other);
 
+        if (other.getValue() > maxBoxValue) {
+            maxBoxValue = other.getValue();
+        }
+
         if (movingDirection == 0) { // Up
             other.left = head.left;
             other.right = head.right;
@@ -211,6 +220,11 @@ public class Player
     public void adjustPosition(int deltaT)
     {
         Box head = head();
+        if (head == null) {
+            restart();
+        }
+
+        Log.d("Player move", String.format("%f, %f // %f, %f" , head.left, head.top, head.left % 48, head.top % 48));
 
         int vx = 0;
         int vy = 0;
@@ -281,7 +295,13 @@ public class Player
             Box next = it.next();
 
             if (current.getValue() == next.getValue()) {
+                if (current.getValue() * 2 > maxBoxValue) {
+                    maxBoxValue = current.getValue() * 2;
+                    score += current.getValue();
+                }
+
                 current.setValue(current.getValue() * 2);
+
                 it.remove();
             } else {
                 // If you didn't merge two tiles, move the cursor back so you can re-process the "next" tile
@@ -308,8 +328,8 @@ public class Player
 
     public Box head() {
         if (boxes == null || boxes.size() == 0 || !(boxes.get(0) instanceof Box)) {
-            restart();
-            return null;
+            restart(); // restart had better re-initialize head properly--otherwise, infinite loop here :|
+            return head();
         }
 
         return boxes.get(0);
@@ -334,4 +354,12 @@ public class Player
         this.movingDirection = movingDirection;
     }
     public int getMovingDirection() { return movingDirection; }
+
+    public int maxBoxValue() {
+        return maxBoxValue;
+    }
+
+    public int score() {
+        return score;
+    }
 }

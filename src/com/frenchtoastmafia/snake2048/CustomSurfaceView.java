@@ -83,12 +83,6 @@ public class CustomSurfaceView
          * Defines the N predominant column structures that govern where new
          * boxes spawn.
          */
-        private Box[]            columns                  = new Box[6];
-
-        private int              minWidth;
-
-        private int              maxWidth;
-
         private long             lastTime                 = System.currentTimeMillis();
 
         // the amount the accelerometer value should be multiplied by before
@@ -337,19 +331,18 @@ public class CustomSurfaceView
 // height,
 // true);
 
-                player =
-                    new Player(new RectF(
-                        mCanvasWidth / 2 - 48,
-                        mCanvasHeight / 2 - 48,
-                        mCanvasWidth / 2,
-                        mCanvasHeight), mCanvasWidth, mCanvasHeight);
+                float cx = mCanvasWidth / 2;
+                cx -= cx % 48;
+                float cy = mCanvasHeight / 2;
+                cy -= cy % 48;
 
-                minWidth = 2 * (mCanvasWidth / 30); // Even
+                Log.d("Player create", String.format("%f, %f // %f, %f" , cx, cy, cx % 48, cy % 48));
 
-                maxWidth = 2 * (mCanvasWidth / 15); // Even
+                player = new Player(new RectF(cx, cy, cx + 48, cy + 48), mCanvasWidth, mCanvasHeight);
 
                 mBlackPaint.setColor(Color.BLACK);
                 mBlackPaint.setStyle(Style.FILL);
+                mBlackPaint.setTextSize(48);
 
                 spawnIncrements = mCanvasHeight * 6;
                 maxBlockHeight = mCanvasHeight;
@@ -425,7 +418,7 @@ public class CustomSurfaceView
             }
 
             if (boxMustBeSpawned) {
-                for (int i = 0; i < seededRandom.nextInt(2) + 1; i++) {
+                for (int i = 0; i < (seededRandom.nextInt(3) / 2) + 1; i++) { // 1/3 chance of spawning 2 blocks -- 1 + rand[0,3)/2
                     spawnNewBox();
                 }
             }
@@ -442,17 +435,22 @@ public class CustomSurfaceView
         private void spawnNewBox() {
             // TODO make this not spawn boxes near the edge--or should it?
             double x = Math.random() * mCanvasWidth;
+            x -= x % 48;
             double y = Math.random() * mCanvasHeight;
-            float size = Player.VELOCITY;
+            y -= y % 48; // This, in one fell swoop, takes care of blocks being spawned off the screen and grids them.
 
-            int value = -1;
+            System.out.println(String.format("%f, %f, %f, %f", x, y, x % 48, y % 48));
+
+            int value = 2;
             int valueRand = seededRandom.nextInt(16);
-            if (valueRand <= 10) {
+            if (valueRand <= 6) {
                 value = 2;
-            } else if (valueRand <= 13) {
+            } else if (valueRand <= 11 && player.maxBoxValue() > 2) {
                 value = 4;
-            } else {
+            } else if (valueRand <= 14 && player.maxBoxValue() > 4) { // don't spawn only 8s when you have a 2/4 in your snake
                 value = 8;
+            } else if (player.maxBoxValue() > 8) {
+                value = 16;
             }
 
             boxes.add(new Box((float)x, (float)y, value));
@@ -475,6 +473,11 @@ public class CustomSurfaceView
             {
                 box.draw(canvas);
             }
+
+            canvas.save();
+            canvas.rotate(90, 50, 50);
+            canvas.drawText(String.format("Score: %d", player.score()), 50, 50, mBlackPaint);
+            canvas.restore();
         }
 
         /**
@@ -623,7 +626,6 @@ public class CustomSurfaceView
     {
         // we have to tell thread to shut down & wait for it to finish, or else
         // it might touch the Surface after we return and explode
-        System.out.println("TIME TO DIE!");
         boolean retry = true;
         thread.setRunning(false);
         while (retry)
