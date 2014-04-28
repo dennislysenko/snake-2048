@@ -36,7 +36,7 @@ public class Player
     {
         Log.d("PLAYER_CREATION", "player created");
         startRect = r;
-        Box playerRect = new Box(r.centerX(), r.centerY(), 2);
+        Box playerRect = new Box(r.centerX(), r.centerY(), 16);
         width = r.right - r.left;
         height = r.top - r.bottom;
         canvasWidth = cW;
@@ -73,7 +73,7 @@ public class Player
     public void draw(Canvas c)
     {
         for (Box box : boxes) {
-            box.draw(c, playerPaint, textPaint);
+            box.draw(c, playerPaint, box.getTextPaint());
         }
     }
 
@@ -224,8 +224,6 @@ public class Player
             restart();
         }
 
-        Log.d("Player move", String.format("%f, %f // %f, %f" , head.left, head.top, head.left % 48, head.top % 48));
-
         int vx = 0;
         int vy = 0;
 
@@ -297,9 +295,9 @@ public class Player
             if (current.getValue() == next.getValue()) {
                 if (current.getValue() * 2 > maxBoxValue) {
                     maxBoxValue = current.getValue() * 2;
-                    score += current.getValue();
                 }
 
+                score += current.getValue();
                 current.setValue(current.getValue() * 2);
 
                 it.remove();

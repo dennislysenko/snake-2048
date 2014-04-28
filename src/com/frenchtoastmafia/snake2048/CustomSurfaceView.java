@@ -79,6 +79,9 @@ public class CustomSurfaceView
         private Player           player;
         private List<Box>        boxes                    =
                                                               new ArrayList<Box>();
+
+        private int hiscore = 0;
+
         /**
          * Defines the N predominant column structures that govern where new
          * boxes spawn.
@@ -320,8 +323,16 @@ public class CustomSurfaceView
             // synchronized to make sure these all change atomically
             synchronized (mSurfaceHolder)
             {
+                SharedPreferences prefs = getContext().getSharedPreferences("com.frenchtoastmafia.snake2048", 0);
+                hiscore = prefs.getInt("hiscore", 0);
+
                 mCanvasWidth = width;
                 mCanvasHeight = height;
+
+                int smallerDimension = Math.min(mCanvasWidth, mCanvasHeight);
+                if (smallerDimension < 1000) {
+                    Box.SIZE = 24;
+                }
 
                 // don't forget to resize the background image
 // mBackgroundImage =
@@ -425,6 +436,13 @@ public class CustomSurfaceView
 
             if (player.isDead())
             {
+                SharedPreferences prefs = getContext().getSharedPreferences("com.frenchtoastmafia.snake2048", 0);
+                if (player.score() > hiscore) {
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putInt("hiscore", player.score());
+                    editor.commit();
+                    hiscore = player.score();
+                }
                 restart();
                 return;
             }
@@ -435,9 +453,16 @@ public class CustomSurfaceView
         private void spawnNewBox() {
             // TODO make this not spawn boxes near the edge--or should it?
             double x = Math.random() * mCanvasWidth;
-            x -= x % 48;
             double y = Math.random() * mCanvasHeight;
-            y -= y % 48; // This, in one fell swoop, takes care of blocks being spawned off the screen and grids them.
+
+            // Don't spawn at edges--this is annoying
+            if (x < 48) { x = 48; }
+            if (x > mCanvasWidth - 48) { x = mCanvasWidth - 48; }
+            if (y < 48) { y = 48; }
+            if (y > mCanvasHeight - 48) { y = mCanvasHeight - 48; }
+
+            x -= x % 48;
+            y -= y % 48; // This grids the blocks. or at least it should. But it doesn't.
 
             System.out.println(String.format("%f, %f, %f, %f", x, y, x % 48, y % 48));
 
@@ -475,6 +500,7 @@ public class CustomSurfaceView
             }
 
             canvas.drawText(String.format("Score: %d", player.score()), 50, 50, mBlackPaint);
+            canvas.drawText(String.format("Hiscore: %d", Math.max(player.score(), hiscore)), 50, 100, mBlackPaint);
         }
 
         /**

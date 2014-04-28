@@ -2,13 +2,14 @@ package com.frenchtoastmafia.snake2048;
 
 import android.graphics.*;
 import android.graphics.Paint.Style;
+import android.util.Log;
 
 public class Box
     extends RectF
 {
     private float x;
     private float y;
-    public static final float SIZE = 48;
+    public static float SIZE = 48;
 
     private int value;
 
@@ -38,7 +39,7 @@ public class Box
         textPaint = new Paint();
         textPaint.setColor(Color.WHITE);
         textPaint.setStyle(Style.FILL);
-        textPaint.setTextSize(60);
+        // textPaint.setTextSize((int)((60.0 / 48) * SIZE));
         textPaint.setFakeBoldText(true);
 
         adjustToGrid();
@@ -58,8 +59,27 @@ public class Box
        if (value > 0) {
            String sValue = ""+value;
 
-           // TODO set the font SIZE of the textPaint to fit sValue
+           // Calculate text size
+//           int testTextSize = 60;
+//           textPaint.setTextSize(testTextSize);
+//           Rect bounds = new Rect();
+//           textPaint.getTextBounds(sValue, 0, sValue.length(), bounds);
+//           float desiredWidth = width() - 4;
+//           float desiredHeight = height() - 4;
+//
+//           float desiredTextSize = Math.min(testTextSize * desiredWidth / bounds.width(), testTextSize * desiredHeight / bounds.height());
+//           textPaint.setTextSize(desiredTextSize);
 
+           setTextSize(60);
+           if (value >= 1000) {
+               setTextSize(20);
+           } else if (value >= 100) {
+               setTextSize(30);
+           } else if (value >= 10) {
+               setTextSize(40);
+           }
+
+           // Center the text in the box
            Rect bounds = new Rect();
            textPaint.getTextBounds(sValue, 0, sValue.length(), bounds);
 
@@ -68,6 +88,12 @@ public class Box
 
            c.drawText(sValue, left + paddingX, top, textPaint);
        }
+    }
+
+    private void setTextSize(int textSize) {
+        double effectiveTextSize = textSize / 48.0 * SIZE;
+        if (value == 16) { Log.d("Setting text size", "" + effectiveTextSize); }
+        textPaint.setTextSize((int) effectiveTextSize); // e.g. if size is 24 (half of default 48), this will scale text down by half
     }
 
     public void draw(Canvas c) {
@@ -204,5 +230,9 @@ public class Box
 
     public void setValue(int value) {
         this.value = value;
+    }
+
+    public Paint getTextPaint() {
+        return textPaint;
     }
 }
