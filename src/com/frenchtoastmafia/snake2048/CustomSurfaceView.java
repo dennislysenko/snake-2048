@@ -394,7 +394,7 @@ public class CustomSurfaceView
         {
             if (firstTime)
             {
-                player.getRect()
+                player.head()
                     .offsetTo(
                         mCanvasWidth / 2,
                         mCanvasHeight / 2);
@@ -455,7 +455,7 @@ public class CustomSurfaceView
                 value = 8;
             }
 
-            boxes.add(new Box((float)x, (float)y, size, value));
+            boxes.add(new Box((float)x, (float)y, value));
         }
 
 

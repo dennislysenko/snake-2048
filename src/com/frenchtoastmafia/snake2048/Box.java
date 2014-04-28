@@ -8,7 +8,7 @@ public class Box
 {
     private float x;
     private float y;
-    private float size;
+    public static final float SIZE = 48;
 
     private int value;
 
@@ -23,16 +23,13 @@ public class Box
      *            the center x of the box
      * @param y
      *            the center y of the box
-     * @param size
-     *            the length and the width of the box
      */
-    public Box(float x, float y, float size, int value)
+    public Box(float x, float y, int value)
     {
-        super(x - size / 2, y + size / 2, x + size / 2, y - size / 2);
+        super(x - SIZE / 2, y + SIZE / 2, x + SIZE / 2, y - SIZE / 2);
 
         this.x = x;
         this.y = y;
-        this.size = size;
         this.value = value;
 
         fillPaint = new Paint();
@@ -48,7 +45,7 @@ public class Box
 
     public void updateBounds()
     {
-        set(x - size / 2, y + size / 2, x + size / 2, y - size / 2);
+        set(x - SIZE / 2, y + SIZE / 2, x + SIZE / 2, y - SIZE / 2);
     }
 
 
@@ -58,7 +55,7 @@ public class Box
        if (value > 0) {
            String sValue = ""+value;
 
-           // TODO set the font size of the textPaint to fit sValue
+           // TODO set the font SIZE of the textPaint to fit sValue
 
            Rect bounds = new Rect();
            textPaint.getTextBounds(sValue, 0, sValue.length(), bounds);
@@ -118,28 +115,6 @@ public class Box
     public void setY(float y)
     {
         this.y = y;
-        updateBounds();
-    }
-
-
-    // ----------------------------------------------------------
-    /**
-     * @return the size
-     */
-    public float getSize()
-    {
-        return size;
-    }
-
-
-    // ----------------------------------------------------------
-    /**
-     * @param size
-     *            the size to set
-     */
-    public void setSize(float size)
-    {
-        this.size = size;
         updateBounds();
     }
 

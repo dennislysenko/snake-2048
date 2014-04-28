@@ -8,6 +8,7 @@ import android.graphics.RectF;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -32,7 +33,7 @@ public class Player
     {
         Log.d("PLAYER_CREATION", "player created");
         startRect = r;
-        Box playerRect = new Box(r.centerX(), r.centerY(), r.width(), 2);
+        Box playerRect = new Box(r.centerX(), r.centerY(), 2);
         width = r.right - r.left;
         height = r.top - r.bottom;
         canvasWidth = cW;
@@ -56,7 +57,7 @@ public class Player
     public void restart()
     {
         boxes = new ArrayList<Box>();
-        boxes.add(new Box(startRect.centerX(), startRect.centerY(), startRect.width(), 2));
+        boxes.add(new Box(startRect.centerX(), startRect.centerY(), 2));
         py = startRect.centerY();
         px = startRect.centerX();
         sideSwitched = false;
@@ -70,13 +71,6 @@ public class Player
             box.draw(c, playerPaint, textPaint);
         }
     }
-
-
-    public RectF getRect()
-    {
-        return boxes.get(0);
-    }
-
 
     /**
      * This method is solely for determining whether or not the player has
@@ -95,7 +89,7 @@ public class Player
         float minimumIntersect = Math.max(canvasHeight, canvasWidth);
 
         // We only need to check collisions on the head box.
-        Box head = boxes.get(0);
+        Box head = head();
         if (head.bottom < collided.top
             && head.bottom > collided.bottom
             && ((head.right < collided.right && head.right > collided.left) || (head.left > collided.left && head.left < collided.right)))
@@ -175,7 +169,7 @@ public class Player
      */
     public void fixIntersection(Box other, int collisionIndicator)
     {
-        Box head = boxes.get(0);
+        Box head = head();
 
         boxes.add(0, other);
 
@@ -216,10 +210,7 @@ public class Player
      */
     public void adjustPosition(int deltaT)
     {
-        if (boxes == null || !(boxes.get(0) instanceof Box)) {
-            restart();
-        }
-        Box head = boxes.get(0);
+        Box head = head();
 
         int vx = 0;
         int vy = 0;
@@ -276,6 +267,10 @@ public class Player
 
     public void mergeNumbersTogether() {
         // TODO move all of the following boxes up in the snake when you merge two together
+
+        // Reverse the boxes first so that it merges from the end (e.g. 222 -> 24 instead of 42)
+        Collections.reverse(boxes);
+
         ListIterator<Box> it = boxes.listIterator();
         while (it.hasNext()) {
             Box current = it.next();
@@ -293,15 +288,14 @@ public class Player
                 it.previous();
             }
         }
+
+        // Re-correctly order the snake
+        Collections.reverse(boxes);
     }
 
     public boolean isDead() {
-        if (boxes == null || !(boxes.get(0) instanceof Box)) {
-            restart();
-        }
-
         // First check if you "ran into yourself"
-        Box head = boxes.get(0);
+        Box head = head();
         for (Box box : boxes) {
             if (!box.equals(head) && intersects(box) > -1) { // remember that intersects() only checks collisions with the head
                 return true;
@@ -310,6 +304,23 @@ public class Player
 
         // Then check if you're off the screen
         return px < 0 || py < 0 || px > canvasWidth || py > canvasHeight;
+    }
+
+    public Box head() {
+        if (boxes == null || boxes.size() == 0 || !(boxes.get(0) instanceof Box)) {
+            restart();
+            return null;
+        }
+
+        return boxes.get(0);
+    }
+
+    public int headValue() {
+        Box head = head();
+        if (head == null) {
+            return 0;
+        }
+        return head.getValue();
     }
 
     public void setBoxes(List<Box> boxes) {
