@@ -244,17 +244,18 @@ public class CustomSurfaceView
                     getContext()
                         .getSharedPreferences(MainActivity.PREF_FILE, 0);
                 Editor e = prefs.edit();
-                player =
-                    g.fromJson(prefs.getString("player", "null"), Player.class);
-                ArrayList<Box> boxes = g.fromJson(prefs.getString("playerBoxes", "null"), ArrayList.class);
-                if (boxes == null) {
-                    System.out.println("BOXES NULL");
-                }
-                player.setBoxes(boxes);
-                if (player == null)
-                    System.out.println("PLAYER NULL");
-                triedToJump = prefs.getBoolean("triedToJump", false);
-                blocksAbovePlayer = prefs.getInt("blocksAbovePlayer", 0);
+                setSurfaceSize(mCanvasWidth, mCanvasHeight);
+//                player =
+//                    g.fromJson(prefs.getString("player", "null"), Player.class);
+//                ArrayList<Box> boxes = g.fromJson(prefs.getString("playerBoxes", "null"), ArrayList.class);
+//                if (boxes == null) {
+//                    System.out.println("BOXES NULL");
+//                }
+//                player.setBoxes(boxes);
+//                if (player == null)
+//                    System.out.println("PLAYER NULL");
+//                triedToJump = prefs.getBoolean("triedToJump", false);
+//                blocksAbovePlayer = prefs.getInt("blocksAbovePlayer", 0);
                 firstTime = prefs.getBoolean("firstTime", false);
                 e.putBoolean("gameSaved", false);
                 e.commit();

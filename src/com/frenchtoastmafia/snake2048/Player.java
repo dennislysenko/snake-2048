@@ -27,16 +27,17 @@ public class Player
     private float       px;
     private boolean     sideSwitched               = false;
 
-    private int maxBoxValue = 0;
+    private int maxBoxValue;
     private int score = 0;
 
     public static final int VELOCITY = 48;
 
     public Player(RectF r, int cW, int cH)
     {
+        maxBoxValue = 0;
         Log.d("PLAYER_CREATION", "player created");
         startRect = r;
-        Box playerRect = new Box(r.centerX(), r.centerY(), 16);
+        Box playerRect = new Box(r.centerX(), r.centerY(), 2);
         width = r.right - r.left;
         height = r.top - r.bottom;
         canvasWidth = cW;
